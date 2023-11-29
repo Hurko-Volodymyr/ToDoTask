@@ -23,23 +23,22 @@
     <h2>Tasks</h2>
 
     <!-- Add New Task -->
-    <div class="task-form">
-        <h3>Add New Task</h3>
-        <form id="addTaskForm">
-            <label for="newTaskTitle">Task Title:</label>
-            <input type="text" id="newTaskTitle" placeholder="Task title" required style="margin-bottom: 12px; padding: 8px;" />
-            <label for="newTaskIsCompleted">Is Completed:</label>
-            <input type="checkbox" id="newTaskIsCompleted" />
-            <button type="button" onclick="addTask()">Add Task</button>
-            <p id="errorText" style="color: red; display: none; margin-top: 8px;">Task title cannot be empty</p>
-        </form>
+    <div class="form-container">
+        <label for="newTaskTitle" style="margin-bottom: 8px;">Task Title:</label>
+        <input type="text" id="newTaskTitle" placeholder="Task title" required style="margin-bottom: 12px; padding: 8px;" class="form-element" />
+
+        <label for="newTaskIsDone" style="margin-right: 8px;">Is Done:</label>
+        <input type="checkbox" id="newTaskIsDone" class="form-element" />
+
+        <button type="button" onclick="addTask()" style="padding: 8px;">Add Task</button>
+        <p id="errorText" style="color: red; display: none; margin-top: 8px;">Task title cannot be empty</p>
+        <div class="clear-both"></div>
     </div>
 
     <!-- Edit Task -->
     <div class="task-form">
         <h3>Edit Task</h3>
         <form id="editTaskForm">
-            <label for="editTaskTitle">Task Title:</label>
             <input type="text" id="editTaskTitle" placeholder="Task title" required style="margin-bottom: 12px; padding: 8px;" />
             <label for="editTaskIsCompleted">Is Completed:</label>
             <input type="checkbox" id="editTaskIsCompleted" />
@@ -52,7 +51,6 @@
     <div class="task-form">
         <h3>Delete Task</h3>
         <form id="deleteTaskForm">
-            <label for="deleteTaskTitle">Task Title:</label>
             <input type="text" id="deleteTaskTitle" placeholder="Task title" required style="margin-bottom: 12px; padding: 8px;" />
             <button type="button" onclick="deleteTask()">Delete Task</button>
             <p id="deleteErrorText" style="color: red; display: none; margin-top: 8px;">Task title cannot be empty</p>
@@ -63,13 +61,32 @@
 <script>
     function addTask() {
         var newTaskTitle = document.getElementById("newTaskTitle").value;
-        var newTaskIsCompleted = document.getElementById("newTaskIsCompleted").checked;
+        var newTaskIsCompleted = document.getElementById("newTaskIsDone").checked;
 
         if (newTaskTitle.trim() === "") {
             document.getElementById("errorText").style.display = "block";
         } else {
             document.getElementById("errorText").style.display = "none";
-            
+
+            fetch("/Home/AddTask", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: "title=" + encodeURIComponent(newTaskTitle) + "&isCompleted=" + newTaskIsCompleted
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    return response.text();
+                })
+                .then(() => {
+                    location.reload();
+                })
+                .catch(error => {
+                    console.error("There was a problem with the fetch operation:", error);
+                });
         }
     }
 
@@ -92,6 +109,7 @@
             document.getElementById("deleteErrorText").style.display = "block";
         } else {
             document.getElementById("deleteErrorText").style.display = "none";
-           
+
+        }
     }
 </script>
