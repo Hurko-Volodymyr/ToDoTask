@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using ToDoTask.Data;
 using ToDoTask.Models;
 using ToDoTask.Repositories.Abstractions;
@@ -27,6 +28,23 @@ namespace ToDoTask.Repositories
         public void AddTask(TaskModel task)
         {
             _dbContext.Tasks.Add(task);
+            _dbContext.SaveChanges();
+        }
+
+        public void UpdateTask(TaskModel task)
+        {
+            _dbContext.Tasks.Update(task);
+            _dbContext.SaveChanges();
+        }
+
+        public TaskModel? GetTaskByTitle(string title)
+        {
+            return _dbContext.Tasks.FirstOrDefault(t => t.Title == title);
+        }
+
+        public void DeleteTask(TaskModel task)
+        {
+            _dbContext.Tasks.Remove(task);
             _dbContext.SaveChanges();
         }
     }

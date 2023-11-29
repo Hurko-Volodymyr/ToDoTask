@@ -43,6 +43,41 @@ namespace ToDoTask.Controllers
             return RedirectToAction("Index");
         }
 
+        [HttpPost]
+        public IActionResult EditTask(string title, string newTitle, bool isCompleted)
+        {
+            _logger.LogInformation($"EditTask called with title: {title}, newTitle: {newTitle}, isDone: {isCompleted}");
+
+            var editedTask = _taskService.EditTask(title, newTitle, isCompleted);
+
+            if (editedTask != null)
+            {
+                _logger.LogInformation($"Task edited successfully. Title: {editedTask.Title}, IsDone: {editedTask.IsCompleted}");
+                return Json(new { success = true, editedTask });
+            }
+
+            _logger.LogInformation("Task not found for editing.");
+            return Json(new { success = false });
+        }
+
+        [HttpPost]
+        public IActionResult DeleteTask(TaskModel model)
+        {
+            _logger.LogInformation($"DeleteTask called with title: {model.Title}");
+
+            var success = _taskService.DeleteTask(model.Title);
+
+            if (success)
+            {
+                _logger.LogInformation($"Task \"{model.Title}\" deleted successfully.");
+                return Json(new { success = true });
+            }
+
+            _logger.LogInformation($"Failed to delete task. Task \"{model.Title}\" not found.");
+            return Json(new { success = false });
+        }
+
+
         public IActionResult Editing()
         {
             return View();
