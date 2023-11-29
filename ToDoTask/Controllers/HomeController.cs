@@ -44,11 +44,11 @@ namespace ToDoTask.Controllers
         }
 
         [HttpPost]
-        public IActionResult EditTask(string title, string newTitle, bool isCompleted)
+        public IActionResult EditTask(TaskEditedModel model)
         {
-            _logger.LogInformation($"EditTask called with title: {title}, newTitle: {newTitle}, isDone: {isCompleted}");
+            _logger.LogInformation($"EditTask called with title: {model.Title}, newTitle: {model.NewTitle}, isDone: {model.IsCompleted}");
 
-            var editedTask = _taskService.EditTask(title, newTitle, isCompleted);
+            var editedTask = _taskService.EditTask(model.Title, model.NewTitle, model.IsCompleted);
 
             if (editedTask != null)
             {

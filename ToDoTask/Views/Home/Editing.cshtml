@@ -114,13 +114,9 @@
         fetch("/Home/EditTask", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/x-www-form-urlencoded"
             },
-            body: JSON.stringify({
-                title: title,
-                newTitle: newTitle,
-                isCompleted: isDone
-            })
+            body: "title=" + encodeURIComponent(title) + "&newTitle=" + encodeURIComponent(newTitle) + "&isCompleted=" + isDone
         })
             .then(response => response.json())  
             .then(data => {
@@ -152,15 +148,16 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    console.log("Task deleted successfully:", data.deletedTask);
+                    resultMessage.textContent = "Task deleted successfully: " + data.deletedTask;
                 } else {
-                    console.error("Failed to delete task.");
+                    resultMessage.textContent = "Failed to delete task.";
                 }
             })
             .catch(error => {
                 console.error("There was a problem with the fetch operation:", error);
             });
     }
+
 
 
 
