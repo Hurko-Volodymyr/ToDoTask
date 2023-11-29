@@ -1,0 +1,71 @@
+﻿<style>
+    ul {
+        list-style-type: none;
+        padding: 0;
+        text-align: left;
+    }
+</style>
+
+<div class="text-center">
+    @model List<TaskModel>
+
+    <h2>Tasks</h2>
+
+    <form>
+        <label for="filter">Filter:</label>
+        <select id="filter" onchange="filterTasks()">
+            <option value="all">All</option>
+            <option value="completed">Completed</option>
+            <option value="notCompleted">Not Completed</option>
+        </select>
+    </form>
+
+    <ul>
+        @for (var i = 0; i < Model.Count; i++)
+        {
+            var task = Model[i];
+            <li>
+                @(i + 1).
+                <label style="background-color: @(task.IsCompleted ? "limegreen" : "")">@task.Title</label>
+            </li>
+        }
+    </ul>
+
+
+</div>
+
+
+    <script>
+        function filterTasks() {
+            var filterValue = document.getElementById('filter').value;
+            var labels = document.querySelectorAll('label');
+
+            var hasFilteredTasks = false;
+
+            labels.forEach(function (label) {
+                var completed = label.style.backgroundColor === "limegreen";
+                label.parentNode.style.display = 'block';
+
+                switch (filterValue) {
+                    case 'completed':
+                        if (!completed) {
+                            label.parentNode.style.display = 'none';
+                        } else {
+                            hasFilteredTasks = true;
+                        }
+                        break;
+                    case 'notCompleted':
+                        if (completed) {
+                            label.parentNode.style.display = 'none';
+                        } else {
+                            hasFilteredTasks = true;
+                        }
+                        break;
+                }
+            });
+
+            var filterForm = document.querySelector('form');
+            filterForm.style.display = 'block';
+
+        }
+    </script>
