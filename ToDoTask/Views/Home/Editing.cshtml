@@ -20,39 +20,53 @@
 </style>
 
 <div class="text-center">
-    <h2>Tasks</h2>
+    <div id="resultMessage"></div>
 
     <!-- Add New Task -->
-    <div class="task-form">
-        <h3>Add New Task</h3>
-        <form id="addTaskForm">
-            <label for="newTaskTitle">Task Title:</label>
-            <input type="text" id="newTaskTitle" placeholder="Task title" required style="margin-bottom: 12px; padding: 8px;" />
-            <label for="newTaskIsCompleted">Is Completed:</label>
-            <input type="checkbox" id="newTaskIsCompleted" />
-            <button type="button" onclick="addTask()">Add Task</button>
-            <p id="errorText" style="color: red; display: none; margin-top: 8px;">Task title cannot be empty</p>
-        </form>
+    <div class="form-container" style="width: 300px; margin: 0 auto; text-align: left;">
+        <h3>Add Task</h3>
+        <input type="text" id="newTaskTitle" placeholder="Task title" required style="margin-bottom: 12px; padding: 8px;" class="form-element" />
+
+        <label for="newTaskIsDone" style="margin-right: 8px;">Is Completed:</label>
+        <input type="checkbox" id="newTaskIsDone" class="form-element" />
+
+        <button type="button" onclick="addTask()" style="padding: 8px;">Add Task</button>
+        <p id="errorText" style="color: red; display: none; margin-top: 8px;">Task title cannot be empty</p>
+        <div class="clear-both"></div>
+    </div>
+    <div style="width: 300px; margin: 0 auto; text-align: left;">
+        <h1></h1>
     </div>
 
     <!-- Edit Task -->
-    <div class="task-form">
-        <h3>Edit Task</h3>
-        <form id="editTaskForm">
-            <label for="editTaskTitle">Task Title:</label>
+    <div style="width: 300px; margin: 0 auto; text-align: left;">
+        <h2>Edit Task</h2>
+
+        <form id="editTaskForm" style="display: flex; flex-direction: column; align-items: left;">
+            <label for="editTaskTitle" style="margin-bottom: 8px;">Task Title:</label>
             <input type="text" id="editTaskTitle" placeholder="Task title" required style="margin-bottom: 12px; padding: 8px;" />
-            <label for="editTaskIsCompleted">Is Completed:</label>
-            <input type="checkbox" id="editTaskIsCompleted" />
-            <button type="button" onclick="editTask()">Edit Task</button>
+
+            <label for="editTaskNewTitle" style="margin-bottom: 8px;">New Task Title:</label>
+            <input type="text" id="editTaskNewTitle" placeholder="New task title" required style="margin-bottom: 12px; padding: 8px;" />
+
+            <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                <label for="editTaskIsDone" style="margin-right: 8px;">Is Done:</label>
+                <input type="checkbox" id="editTaskIsDone" />
+            </div>
+
+            <button type="button" onclick="editTask()" style="padding: 8px;">Edit Task</button>
             <p id="editErrorText" style="color: red; display: none; margin-top: 8px;">Task title cannot be empty</p>
+            <div style="width: 300px; margin: 0 auto; text-align: left;">
+                <h1></h1>
+            </div>
         </form>
     </div>
 
+
     <!-- Delete Task -->
-    <div class="task-form">
+    <div class="task-form" style="width: 300px; margin: 0 auto; text-align: left;">
         <h3>Delete Task</h3>
         <form id="deleteTaskForm">
-            <label for="deleteTaskTitle">Task Title:</label>
             <input type="text" id="deleteTaskTitle" placeholder="Task title" required style="margin-bottom: 12px; padding: 8px;" />
             <button type="button" onclick="deleteTask()">Delete Task</button>
             <p id="deleteErrorText" style="color: red; display: none; margin-top: 8px;">Task title cannot be empty</p>
@@ -63,35 +77,139 @@
 <script>
     function addTask() {
         var newTaskTitle = document.getElementById("newTaskTitle").value;
-        var newTaskIsCompleted = document.getElementById("newTaskIsCompleted").checked;
+        var newTaskIsCompleted = document.getElementById("newTaskIsDone").checked;
 
         if (newTaskTitle.trim() === "") {
             document.getElementById("errorText").style.display = "block";
         } else {
             document.getElementById("errorText").style.display = "none";
-            
+
+            fetch("/Home/AddTask", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: "title=" + encodeURIComponent(newTaskTitle) + "&isCompleted=" + newTaskIsCompleted
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    return response.text();
+                })
+                .then(() => {
+                    location.reload();
+                })
+                .catch(error => {
+                    console.error("There was a problem with the fetch operation:", error);
+                });
         }
     }
-
     function editTask() {
-        var taskTitle = document.getElementById("editTaskTitle").value;
-        var taskIsCompleted = document.getElementById("editTaskIsCompleted").checked;
+        var title = document.getElementById("editTaskTitle").value;
+        var newTitle = document.getElementById("editTaskNewTitle").value;
+        var isDone = document.getElementById("editTaskIsDone").checked;
 
-        if (taskTitle.trim() === "") {
+        console.log("Sending data:", { title, newTitle, isDone });
+
+        fetch("/Home/EditTask", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: "title=" + encodeURIComponent(title) + "&newTitle=" + encodeURIComponent(newTitle) + "&isCompleted=" + isDone
+        })
+            .then(response => response.json())  
+            .then(data => {
+                if (data.success) {
+                    console.log("Task edited successfully:", data.editedTask);
+                    location.reload();
+                } else {
+                    console.error("Failed to edit task. Server response:", data);
+                }
+            })
+            .catch(error => {
+                console.error("There was a problem with the fetch operation:", error);
+            });
+
+
+    } function editTask() {
+        var title = document.getElementById("editTaskTitle").value;
+        var newTitle = document.getElementById("editTaskNewTitle").value;
+        var isDone = document.getElementById("editTaskIsDone").checked;
+
+        if (title.trim() === "" || newTitle.trim() === "") {
             document.getElementById("editErrorText").style.display = "block";
+            return;  
         } else {
             document.getElementById("editErrorText").style.display = "none";
-           
         }
+
+        console.log("Sending data:", { title, newTitle, isDone });
+
+        fetch("/Home/EditTask", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: "title=" + encodeURIComponent(title) + "&newTitle=" + encodeURIComponent(newTitle) + "&isCompleted=" + isDone
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log("Task edited successfully:", data.editedTask);
+                    document.getElementById("resultMessage").innerText = "Task edited successfully.";
+                } else {
+                    console.error("Failed to edit task.");
+                    document.getElementById("resultMessage").innerText = "Failed to edit task.";
+                }
+            })
+            .catch(error => {
+                console.error("There was a problem with the fetch operation:", error);
+                document.getElementById("resultMessage").innerText = "Error during the edit operation.";
+            });
     }
+
+
+
+
 
     function deleteTask() {
-        var deleteTaskTitle = document.getElementById("deleteTaskTitle").value;
+        var title = document.getElementById("deleteTaskTitle").value;
 
-        if (deleteTaskTitle.trim() === "") {
+        if (title.trim() === "") {
             document.getElementById("deleteErrorText").style.display = "block";
+            return;
         } else {
             document.getElementById("deleteErrorText").style.display = "none";
-           
+        }
+
+        console.log("Sending data:", { title});
+
+        fetch("/Home/DeleteTask", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: "title=" + encodeURIComponent(title)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log("Task deleted successfully:", data.editedTask);
+                    document.getElementById("resultMessage").innerText = "Task deleted successfully.";
+                } else {
+                    console.error("Failed to delete task.");
+                    document.getElementById("resultMessage").innerText = "Failed to delete task.";
+                }
+            })
+            .catch(error => {
+                console.error("There was a problem with the fetch operation:", error);
+                document.getElementById("resultMessage").innerText = "Error during the delete operation.";
+            });
     }
+
+
+
+
 </script>

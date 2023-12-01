@@ -7,5 +7,7 @@ namespace ToDoTask.Services.Abstractions
         List<TaskModel> GetAllTasks();
         TaskModel? GetTaskById(int id);
         void AddTask(TaskModel task);
+        TaskModel? EditTask(string title, string newTitle, bool isCompleted);
+        public bool DeleteTask(string title);
     }
 }

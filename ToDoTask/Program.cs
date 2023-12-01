@@ -27,6 +27,8 @@ namespace ToDoTask
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             builder.Services.AddControllersWithViews();
 
+            builder.Services.BuildServiceProvider().GetService<ApplicationDbContext>().Database.Migrate();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

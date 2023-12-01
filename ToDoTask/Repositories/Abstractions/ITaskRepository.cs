@@ -1,4 +1,5 @@
-﻿using ToDoTask.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using ToDoTask.Models;
 
 namespace ToDoTask.Repositories.Abstractions
 {
@@ -7,5 +8,8 @@ namespace ToDoTask.Repositories.Abstractions
         List<TaskModel> GetAllTasks();
         TaskModel? GetTaskById(int id);
         void AddTask(TaskModel task);
+        public void UpdateTask(TaskModel task);
+        public TaskModel? GetTaskByTitle(string title);
+        public void DeleteTask(TaskModel task);
     }
 }
