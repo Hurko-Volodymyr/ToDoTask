@@ -20,6 +20,7 @@
 </style>
 
 <div class="text-center">
+    <div id="resultMessage"></div>
 
     <!-- Add New Task -->
     <div class="form-container" style="width: 300px; margin: 0 auto; text-align: left;">
@@ -130,13 +131,60 @@
             .catch(error => {
                 console.error("There was a problem with the fetch operation:", error);
             });
+
+
+    } function editTask() {
+        var title = document.getElementById("editTaskTitle").value;
+        var newTitle = document.getElementById("editTaskNewTitle").value;
+        var isDone = document.getElementById("editTaskIsDone").checked;
+
+        if (title.trim() === "" || newTitle.trim() === "") {
+            document.getElementById("editErrorText").style.display = "block";
+            return;  
+        } else {
+            document.getElementById("editErrorText").style.display = "none";
+        }
+
+        console.log("Sending data:", { title, newTitle, isDone });
+
+        fetch("/Home/EditTask", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: "title=" + encodeURIComponent(title) + "&newTitle=" + encodeURIComponent(newTitle) + "&isCompleted=" + isDone
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log("Task edited successfully:", data.editedTask);
+                    document.getElementById("resultMessage").innerText = "Task edited successfully.";
+                } else {
+                    console.error("Failed to edit task.");
+                    document.getElementById("resultMessage").innerText = "Failed to edit task.";
+                }
+            })
+            .catch(error => {
+                console.error("There was a problem with the fetch operation:", error);
+                document.getElementById("resultMessage").innerText = "Error during the edit operation.";
+            });
     }
+
 
 
 
 
     function deleteTask() {
         var title = document.getElementById("deleteTaskTitle").value;
+
+        if (title.trim() === "") {
+            document.getElementById("deleteErrorText").style.display = "block";
+            return;
+        } else {
+            document.getElementById("deleteErrorText").style.display = "none";
+        }
+
+        console.log("Sending data:", { title});
 
         fetch("/Home/DeleteTask", {
             method: "POST",
@@ -148,13 +196,16 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    resultMessage.textContent = "Task deleted successfully: " + data.deletedTask;
+                    console.log("Task deleted successfully:", data.editedTask);
+                    document.getElementById("resultMessage").innerText = "Task deleted successfully.";
                 } else {
-                    resultMessage.textContent = "Failed to delete task.";
+                    console.error("Failed to delete task.");
+                    document.getElementById("resultMessage").innerText = "Failed to delete task.";
                 }
             })
             .catch(error => {
                 console.error("There was a problem with the fetch operation:", error);
+                document.getElementById("resultMessage").innerText = "Error during the delete operation.";
             });
     }
 
